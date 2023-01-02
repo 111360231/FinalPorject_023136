@@ -1,5 +1,11 @@
 ﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(376,5): warning MSB8004: Intermediate 目錄結尾不是結尾斜線。這個建置執行個體將會加入此斜線，因為這樣才能正確評估 Intermediate 目錄。
 C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(377,5): warning MSB8004: Output 目錄結尾不是結尾斜線。這個建置執行個體將會加入此斜線，因為這樣才能正確評估 Output 目錄。
   Main.c
-c:\mydocuments\vivi\school\ntut\課本電子檔\大一上\高階程式\finalproject\code_023136\source\main.c(201): warning C4554: '|': 檢查運算子優先順序找出可能發生的錯誤; 使用括號釐清順序
-  023136.vcxproj -> C:\MyDocuments\Vivi\SCHOOL\NTUT\課本電子檔\大一上\高階程式\FinalProject\code_023136\023136\023136\..\..\temp\debug\023136.exe
+c:\users\alice\desktop\36\finalporject_023136\source\main.c(99): warning C4087: 'rand': 搭配 'void' 參數清單宣告
+c:\users\alice\desktop\36\finalporject_023136\source\main.c(100): warning C4087: 'rand': 搭配 'void' 參數清單宣告
+c:\users\alice\desktop\36\finalporject_023136\source\main.c(221): warning C4013: 'welcome' 未定義; 假設 extern 傳回整數
+c:\users\alice\desktop\36\finalporject_023136\source\main.c(223): warning C4013: 'GameLevel' 未定義; 假設 extern 傳回整數
+  LINK : 最後的累加連結找不到或未建置 ..\..\temp\debug\023136.exe，正在執行完整連結
+Main.obj : error LNK2019: 無法解析的外部符號 _welcome 在函式 _main 中被參考
+Main.obj : error LNK2019: 無法解析的外部符號 _GameLevel 在函式 _main 中被參考
+..\..\temp\debug\023136.exe : fatal error LNK1120: 2 個無法解析的外部符號

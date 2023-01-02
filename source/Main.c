@@ -1,76 +1,77 @@
-#define   WIDTH        100
-#define   HIGH         20	
-#define   MAX_LENGHT   100	// 定義蛇的最大長度
-#define   SPEED        500	// 定義遊戲初始速度
+#define   WIDTH        80
+#define   HIGH         10
+#define   SNAKE_MAX_LENGHT   100 
+#define   SPEED        500
+#define   MAX_PLAYTIMES       100  //玩貪吃蛇的最大次數
+#define   clrscr()       system("cls"); //清空畫面的功能
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <Windows.h>
 #include <time.h>
-#include <conio.h>
+#include <conio.h> 
 
-// 要用到的全域性變數
-int food_flag = 0;
-int key = 72;
+int food_flag = 0; //food_flag為1時食物存在，反之則否
+int key = 72; //對電腦來說：key=72代表上，80代表下，75代表左，77代表右
+int conti; //是否重新玩遊戲
+int playtimes = 0; //玩遊戲的次數
+int history[MAX_PLAYTIMES];
 
-struct
+struct //建構food的所有屬性
 {
 	int x;
 	int y;
 }food;
 
-struct
+struct //建構snake的所有屬性
 {
 	int len;
-	int x_buf[MAX_LENGHT];
-	int y_buf[MAX_LENGHT];
+	int x_buf[SNAKE_MAX_LENGHT];
+	int y_buf[SNAKE_MAX_LENGHT];
 	int score;
 }snake;
 
 void gotoxy(int x, int y)
 {
-	COORD coord;
-	coord.X = x;
-	coord.Y = y;
-	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+	COORD coord; //命coord為座標格式
+	coord.X = x; //命coord.X為x座標
+	coord.Y = y; //命coord.Y為y座標
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord); //確保地圖大小能夠被螢幕所容納
 }
 
 void DrawMap(void)
 {
-	int x, y;
-	for (x = 0; x < WIDTH + 4; x += 2)
+	int a, b;
+	for (a = 0; a < WIDTH + 4; a += 2) //畫上下兩邊的牆面
 	{
-		y = 0;
-		gotoxy(x, y);
+		b = 0;
+		gotoxy(a, b); //讓定位點移到該座標
 		printf("■");
-		y = HIGH + 2;
-		gotoxy(x, y);
+		b = HIGH + 2;
+		gotoxy(a, b); //讓定位點移到新座標
 		printf("■");
 	}
-
-	for (y = 1; y < HIGH + 2; y++)
+	for (b = 1; b < HIGH + 2; b++) //畫左右兩邊的牆面(■不是正方形，其為2*1)
 	{
-		x = 0;
-		gotoxy(x, y);
+		a = 0;
+		gotoxy(a, b);
 		printf("■");
-		x = WIDTH + 2;
-		gotoxy(x, y);
+		a = WIDTH + 2;
+		gotoxy(a, b);
 		printf("■");
 	}
-
-	// 將游標移出遊戲區域
-	gotoxy(0, HIGH + 5);
+	gotoxy(0, HIGH + 5); //將定位點移出遊戲區域，此功能也可不存在
 }
 
-void CreateSnake(void)
+void CreateSnake(void) //創造出蛇和其初始位置，此時蛇還不會移動
 {
 	int orgin_x, orgin_y;
-	orgin_x = WIDTH / 2 + 2;
-	orgin_y = HIGH / 2 + 1;
+	orgin_x = (WIDTH / 2) + 2;
+	orgin_y = (HIGH / 2) + 1;
 
-	snake.len = 3;
-	snake.x_buf[0] = orgin_x;
-	snake.y_buf[0] = orgin_y;
+	snake.len = 3;//蛇的身體由三個方塊組成
+	snake.x_buf[0] = orgin_x; //定義第一個方塊的x座標
+	snake.y_buf[0] = orgin_y; //定義第一個方塊的y座標
 	snake.x_buf[1] = orgin_x;
 	snake.y_buf[1] = ++orgin_y;
 	snake.x_buf[2] = orgin_x;
@@ -84,68 +85,69 @@ void CreateSnake(void)
 		gotoxy(snake.x_buf[i], snake.y_buf[i]);
 		printf("■");
 	}
-	gotoxy(0, HIGH + 5);
+	gotoxy(0, HIGH + 5); //將定位點移出遊戲區域，此功能也可不存在
 }
 
 void CreateFood(void)
 {
-	if (food_flag == 0)
+	if (food_flag == 0)//食物不存在時，創建出食物
 	{
-		int flag = 0, i;
+		int a = 0, i;
 		do
 		{
-			srand((unsigned int)time(NULL));
-			food.x = (rand() % (WIDTH / 2)) * 2 + 2;
-			food.y = rand() % HIGH + 1;
+			srand((unsigned int)time(NULL)); //每秒產生隨機一數,並確保不會有重複的情況
+			food.x = ((rand(0) % (WIDTH / 2)) * 2) + 2; //確保x座標的數值可在此程式中運作
+			food.y = ((rand(0) % (HIGH / 2)) * 2) + 2;
 
-			// 判斷生成的食物是否和蛇身重合
 			for (i = 0; i < snake.len; i++)
 			{
-				if (snake.x_buf[i] == food.x && snake.y_buf[i] == food.y)
+				if (snake.x_buf[i] == food.x && snake.y_buf[i] == food.y) //判斷食物是否和蛇身重合
 				{
-					flag = 1;
-					break;
+					a = 1;
+					break; //跳出for迴圈
 				}
 			}
 
-		} while (flag);
+		} while (a);
 
 		gotoxy(food.x, food.y);
 		printf("★");
 
-		// 吃到食物，則分數加1
-		snake.score++;
+		snake.score++; //吃到食物，則分數加1
 
-		food_flag = 1;
+		food_flag = 1; //創建完畢，食物存在
 	}
 	gotoxy(0, HIGH + 5);
 }
 
 void SnakeMove(int x, int y)
 {
-	// 判斷是否吃到食物，吃到長度加1
-	if (!food_flag)
+	//判斷是否吃到食物，吃到長度加1
+	if (!food_flag) //讓食物從存在變成不存在，或是相反後，再進行if
 		snake.len++;
-	// 沒吃到則抹去最後一節
+
+	//沒吃到則繼續移動(透過抹去最後一節身體的方式)
 	else
 	{
-		gotoxy(snake.x_buf[snake.len - 1], snake.y_buf[snake.len - 1]);
-		printf("  ");
+		gotoxy(snake.x_buf[snake.len - 1], snake.y_buf[snake.len - 1]); //到身體最後一節的座標
+		printf("  "); //抹去
 	}
-	int i;
-	for (i = snake.len - 1; i > 0; i--)
+
+	//讓原本的倒數第二節變成最後一節，以此類推
+	for (int i = snake.len - 1; i > 0; i--)
 	{
 		snake.x_buf[i] = snake.x_buf[i - 1];
 		snake.y_buf[i] = snake.y_buf[i - 1];
 	}
+
 	snake.x_buf[0] = x;
 	snake.y_buf[0] = y;
-	gotoxy(snake.x_buf[0], snake.y_buf[0]);
+	gotoxy(snake.x_buf[0], snake.y_buf[0]); //在適當的位置創建出新的頭
 	printf("■");
 	gotoxy(0, HIGH + 5);
 }
 
-void move()
+void move() //確定下一個方向為何
 {
 	int pre_key = key, x, y;
 
@@ -153,14 +155,14 @@ void move()
 	{
 		fflush(stdin);//清空緩衝區的字元
 
-		//getch()讀取方向鍵的時候，會返回兩次，第一次呼叫返回0或者224，第二次呼叫返回的才是實際值
-		key = _getch();//第一次呼叫返回的不是實際值
-		key = _getch();//第二次呼叫返回實際值
+		//getch()負責讀取方向鍵，而其會傳回兩次不同的值，第一次傳回0或224，第二次傳回的才是實際值
+		key = _getch();
+		key = _getch(); //第二次傳回的值才代表使用者要前進的方向
 	}
 
-	// 小蛇移動方向不能和上一次的方向相反
-	if (pre_key == 72 && key == 80)
-		key = 72;
+	//規定移動方向不能和上一次的方向相反
+	if (pre_key == 72 && key == 80)//如果(上一次方向為上&下一次方向為下)
+		key = 72; //方向持續朝上
 	if (pre_key == 80 && key == 72)
 		key = 80;
 	if (pre_key == 75 && key == 77)
@@ -168,6 +170,7 @@ void move()
 	if (pre_key == 77 && key == 75)
 		key = 77;
 
+	//因為此寫法是讓第三節身體消失，然後在適當的位置放置第一節身體，所以此處只需要重新定義第一節身體的位置即可
 	switch (key)
 	{
 	case 75:
@@ -188,54 +191,36 @@ void move()
 		break;
 	}
 
-	if (x == food.x&&y == food.y)
-		food_flag = 0;
-	SnakeMove(x, y);
+	if (x == food.x&&y == food.y) //如果蛇和食物重合
+		food_flag = 0; //代表食物不存在
+	SnakeMove(x, y); //執行讓蛇移動的副程式
 }
 
-void check(void)
+void HistoryRecord() //顯示歷史紀錄
 {
-	int i;
-
-	// 失敗條件
-	if (snake.x_buf[0] == 0 | snake.x_buf[0] == WIDTH + 4 | snake.y_buf[0] == 0 | snake.y_buf[0] == HIGH + 2)
+	gotoxy(0, 9);//跳到座標(0,9)顯示
+	if (playtimes)//用玩得次數來當判斷條件
 	{
-		printf("Game Over!\n");
-		exit(0);
-	}
-	for (i = 1; i < snake.len; i++)
-	{
-		if (snake.x_buf[0] == snake.x_buf[i] && snake.y_buf[0] == snake.y_buf[i])
+		printf("※歷史紀錄：\n");
+		for (int i = 0; i < playtimes; i++)//原本設的次數為0，故用此迴圈來進行判斷和累加
 		{
-			printf("Game Over!\n");
-			exit(0);
+			gotoxy(0, 10 + i);
+			printf("[第 %d 次遊戲分數是 %d]", (i + 1), history[i]);//顯示遊玩的次數和分數
 		}
 	}
-
-	// 勝利條件
-	if (snake.len == MAX_LENGHT)
+	else
 	{
-		printf("Your are win!\n");
-		exit(0);
+		printf("※歷史紀錄：無\n");
 	}
-
-	// 列印得分
-	gotoxy(0, HIGH + 6);
-	printf("Your score: %d", snake.score);
 }
 
 int main(void)
 {
-	DrawMap();
-	CreateSnake();
-	//printf("");
 	while (1)
 	{
-		CreateFood();
-		move();
-		// 用於控制遊戲的速度
-		Sleep(SPEED - 2 * snake.len);
-		check();
+		welcome(); //顯示歡迎畫面
+		HistoryRecord(); //顯示歷史紀錄
+		GameLevel(); //選擇遊戲難關
+		playtimes += 1; //遊玩次數加一
 	}
-	system("pause");
 }
