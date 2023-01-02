@@ -196,6 +196,24 @@ void move() //確定下一個方向為何
 	SnakeMove(x, y); //執行讓蛇移動的副程式
 }
 
+
+void HistoryRecord() //顯示歷史紀錄
+{
+	gotoxy(0, 9);//跳到座標(0,9)顯示
+	if (playtimes)//用玩得次數來當判斷條件
+	{
+		printf("※歷史紀錄：\n");
+		for (int i = 0; i < playtimes; i++)//原本設的次數為0，故用此迴圈來進行判斷和累加
+		{
+			gotoxy(0, 10 + i);
+			printf("[第 %d 次遊戲分數是 %d]", (i + 1), history[i]);//顯示遊玩的次數和分數
+		}
+	}
+	else
+	{
+		printf("※歷史紀錄：無\n");
+	}
+}
 void welcome()  //歡迎介面
 {
 	gotoxy(0, 0);  //跳到螢幕的最上方座標再印出規則
@@ -238,4 +256,5 @@ int main(void)
 		GameLevel(); //選擇遊戲難關
 		playtimes += 1; //遊玩次數加一
 	}
+
 }
